@@ -21,8 +21,8 @@
 #include <fstream>
 #include <vector>
 #include <map>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include <../src/Eigen/Core>
+#include <../src/Eigen/Geometry>
 
 #define PI 3.14159265
 
