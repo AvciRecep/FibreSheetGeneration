@@ -1,3 +1,6 @@
 TestGenerateSheetFibre_Human.hpp
+TestGenerateSheetFibre_Rat.hpp
 TestSolveLaplaceForCircum_Human.hpp
+TestSolveLaplaceForCircum_Rat.hpp
 TestSolveLaplaceForFibre_Human.hpp
+TestSolveLaplaceForFibre_Rat.hpp
