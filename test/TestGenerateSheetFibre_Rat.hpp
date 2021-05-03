@@ -45,26 +45,26 @@ public:
 
     void TestCalculateSheetHR()
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/hsb16_tesel_4.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_16_16_1.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream gradijk("projects/mesh/FibreSheetGeneration/hsb16_tesel_4_grad_longi.txt");
+        std::ifstream gradijk("projects/mesh/FibreSheetGeneration/rat_16_16_1_grad_longi.txt");
         if (!gradijk)
         {
             cout << "There was a problem opening laplace gradient for reading " << endl;
         }
 
-        std::ifstream gradNormalijk("projects/mesh/FibreSheetGeneration/hsb16_tesel_4_grad_circum.txt");
+        std::ifstream gradNormalijk("projects/mesh/FibreSheetGeneration/rat_16_16_1_grad_circum.txt");
         if (!gradNormalijk)
         {
             cout << "There was a problem opening laplace gradient normal for reading " << endl;
         }
 
-        OutputFileHandler output_file_handler("TestLaplaceHSB016_4_Ortho");
-        out_stream p_file = output_file_handler.OpenOutputFile("hsb16_tesel_4.1.ortho");
+        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_ortho");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1.1.ortho");
         double x, y, z;
         Vector3d fibre;
         Vector3d sheet;
@@ -149,7 +149,7 @@ public:
                       << normal(0) << " " << normal(1) << " " << normal(2) << "\n";
         }
         p_file->close();
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplaceHSB016_4_Ortho", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_ortho", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.AddCellData("Sheet Direction", sheet_directions);
         mesh_writer.AddCellData("Cross Direction", cross_directions);

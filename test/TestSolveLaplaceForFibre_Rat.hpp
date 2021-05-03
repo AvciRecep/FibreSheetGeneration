@@ -125,7 +125,7 @@ private:
         std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.node");
         if (!inNode)
         {
-            cout << "There was a problem opening faces for reading " << endl;
+            cout << "There was a problem opening nodes for reading " << endl;
         }
         //std::string line;
         if(!std::getline(inNode, line))
