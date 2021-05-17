@@ -142,7 +142,7 @@ private:
         stringstream numNodeLine(line);
         numNodeLine >> numNodes >> dummy1 >> dummy2 >> dummy3;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.1_new.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
