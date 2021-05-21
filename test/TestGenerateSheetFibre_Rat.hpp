@@ -51,13 +51,13 @@ public:
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream gradijk("projects/mesh/FibreSheetGeneration/rat_16_16_1_grad_longi.txt");
+        std::ifstream gradijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_longi/rat_16_16_1_grad_longi.txt");
         if (!gradijk)
         {
             cout << "There was a problem opening laplace gradient for reading " << endl;
         }
 
-        std::ifstream gradNormalijk("projects/mesh/FibreSheetGeneration/rat_16_16_1_grad_circum.txt");
+        std::ifstream gradNormalijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_circum/rat_16_16_1_grad_circum.txt");
         if (!gradNormalijk)
         {
             cout << "There was a problem opening laplace gradient normal for reading " << endl;

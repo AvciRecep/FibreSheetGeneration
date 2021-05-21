@@ -295,7 +295,6 @@ private:
 
 public:
 
-
     void TestSolvingFibre() //throw(Exception)
     {
 
