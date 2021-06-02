@@ -257,7 +257,7 @@ private:
                         dir_bound_1.push_back(nodeSt);
                     }
                 }
-                else if (myNodeInfo.cmEle >= 73 && myNodeInfo.cmEle < 80 )
+                else if (myNodeInfo.cmEle >= 73 && myNodeInfo.cmEle < 81 )
                 {
                     if(myNodeInfo.Xi1 > 0.99)
                     {
