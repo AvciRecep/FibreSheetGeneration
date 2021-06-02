@@ -1,4 +1,3 @@
-
 #ifndef TESTSOLVELAPLACEFORCIRCUM_HPP_
 #define TESTSOLVELAPLACEFORCIRCUM_HPP_
 
@@ -92,7 +91,6 @@ class TestSolvingLaplaceForCircum : public CxxTest::TestSuite
 private:
     std::vector<nodeInfo_st> tetNodeInfo;
     std::vector<nodeXYZ_st> dir_bound_0;
-    std::vector<nodeXYZ_st> dir_bound_05;
     std::vector<nodeXYZ_st> dir_bound_1;
     std::set<unsigned int> face_node;
     std::vector<nodeBoun_st> all_boun_Info;
@@ -102,7 +100,7 @@ private:
     void ReadFilesIntoMap() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -124,13 +122,13 @@ private:
             face_node.insert(temp1);
             face_node.insert(temp2);
             face_node.insert(temp3);
-            numFaces -- ;
+            numFaces--;
         }
 
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.node");
+        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening coordinates for reading " << endl;
@@ -143,7 +141,7 @@ private:
         stringstream numNodeLine(line);
         numNodeLine >> numNodes >> dummy1 >> dummy2 >> dummy3;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -155,7 +153,7 @@ private:
             stringstream bounInfo(line);
             bounInfo >> bounStruct.x >> bounStruct.y >> bounStruct.z >> bounStruct.long_boun >> bounStruct.circ_boun;
             all_boun_Info.push_back(bounStruct);
-            numNodes -- ;
+            numNodes--;
         }
         cout << "Vector size -- " << all_boun_Info.size() << endl;
     }
@@ -186,8 +184,8 @@ private:
         cout << "0 -- " << dir_bound_0.size() << endl;
         cout << "1 -- " << dir_bound_1.size() << endl;
     }
-/*
-    void ReadFilesIntoMap() //throw(Exception)
+
+    void ReadFilesIntoMap_v2() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
         std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
@@ -225,7 +223,7 @@ private:
             cout << "There was a problem opening coordinates for reading " << endl;
         }
 
-        ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_8_8_1.ipxi");
+        ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.ipxi");
         if (!inElemDetails)
         {
             cout << "There was a problem opening element details for reading " << endl;
@@ -252,9 +250,9 @@ private:
             stringstream nodeCoor(line);
             std::getline(inElemDetails, lineEle);
             stringstream eleInfo(lineEle);
-            nodeCoor >>nodeStructure.index >> nodeStructure.x >> nodeStructure.y >> nodeStructure.z;
+            nodeCoor >> nodeStructure.index >> nodeStructure.x >> nodeStructure.y >> nodeStructure.z;
             eleInfo >> dummy >> nodeStructure.cmEle >> nodeStructure.Xi1 >> nodeStructure.Xi2 >> nodeStructure.Xi3;
-            if (find(interestedElem.begin(), interestedElem.end(),nodeStructure.cmEle)!= interestedElem.end())
+            if (find(interestedElem.begin(), interestedElem.end(), nodeStructure.cmEle)!= interestedElem.end())
                 tetNodeInfo.push_back(nodeStructure);
             numNodes -- ;
         }
@@ -271,33 +269,33 @@ private:
             unsigned int nodeIdx = myNodeInfo.index;
             if(face_node.find(nodeIdx) != face_node.end())
             {
-        if(myNodeInfo.Xi2 < 0.001)
-        {
-          nodeXYZ_st nodeSt;
-          nodeSt.x= myNodeInfo.x;
-          nodeSt.y= myNodeInfo.y;
-          nodeSt.z= myNodeInfo.z;
-          dir_bound_1.push_back(nodeSt);
-        }
-        if(myNodeInfo.Xi2 > 0.99)
-        {
-          nodeXYZ_st nodeSt;
-          nodeSt.x= myNodeInfo.x;
-          nodeSt.y= myNodeInfo.y;
-          nodeSt.z= myNodeInfo.z;
-          dir_bound_0.push_back(nodeSt);
-        }
+                if(myNodeInfo.Xi3 < 0.001)
+                {
+                  nodeXYZ_st nodeSt;
+                  nodeSt.x= myNodeInfo.x;
+                  nodeSt.y= myNodeInfo.y;
+                  nodeSt.z= myNodeInfo.z;
+                  dir_bound_1.push_back(nodeSt);
+                }
+                if(myNodeInfo.Xi3 > 0.99)
+                {
+                  nodeXYZ_st nodeSt;
+                  nodeSt.x= myNodeInfo.x;
+                  nodeSt.y= myNodeInfo.y;
+                  nodeSt.z= myNodeInfo.z;
+                  dir_bound_0.push_back(nodeSt);
+                }
             }
         }
         cout << "0 -- " << dir_bound_0.size() << endl;
         cout << "1 -- " << dir_bound_1.size() << endl;
     }
-*/
+
 public:
 
     void TestSolvingCircum() //throw(Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_16_16_1.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_8_8_1.1");
         // Now declare a tetrahedral mesh with the same dimensions...
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader.
@@ -307,10 +305,10 @@ public:
         MyPde pde;
 
         TRACE("Read files into map");
-        ReadFilesIntoMap();
+        ReadFilesIntoMap_v2();
 
         TRACE("Sort dirichilet boundaries");
-        sortDirchletAndNeumann_Rat();
+        sortDirchletAndNeumann();
 
         TRACE("Begin Fibre solve process");
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -331,7 +329,7 @@ public:
             for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_1.begin(); itr != dir_bound_1.end(); itr++)
             {
                 nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.00001) && x > (myNode.x - 0.00001) && y < (myNode.y + 0.00001) && y > (myNode.y - 0.00001) && z < (myNode.z + 0.00001) && z > (myNode.z - 0.00001))
+                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
                 {
                     bcc.AddDirichletBoundaryCondition(*iter, p_in_boundary_condition);
                     inCount++;
@@ -340,7 +338,7 @@ public:
             for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_0.begin(); itr != dir_bound_0.end(); itr++)
             {
                 nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.00001) && x > (myNode.x - 0.00001) && y < (myNode.y + 0.00001) && y > (myNode.y - 0.00001) && z < (myNode.z + 0.00001) && z > (myNode.z - 0.00001))
+                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
                 {
                     bcc.AddDirichletBoundaryCondition(*iter, p_zero_boundary_condition);
                     outCount++;
@@ -359,9 +357,9 @@ public:
         ReplicatableVector result_repl(result);
 
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_circum");
+        OutputFileHandler output_file_handler("TestLaplace_rat_8_8_1_circum_v2");
 
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1_linear_sol_circum.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_8_8_1_linear_sol_circum.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 
@@ -379,8 +377,8 @@ public:
 
         TRACE("Completed writing the linear solve values");
 
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_16_16_1_grad_circum.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_16_16_1_mag_grad_circum.txt");
+        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_8_8_1_grad_circum.txt");
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_8_8_1_mag_grad_circum.txt");
         std::vector<c_vector<double, 3u> > fibre_directions;
         c_vector<double, 3u> Node1, Node2, Node3, Node4;
 
@@ -421,7 +419,7 @@ public:
             fibre_directions.push_back(fibre_direction);
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_circum", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_8_8_1_circum_v2", "mesh", false);
         mesh_writer.AddCellData("Normal Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
