@@ -411,7 +411,7 @@ public:
 
 
         // Loop over the entries of the solution. //
-        for (unsigned i=0; i<25001; i++) //result_repl.GetSize()-300
+        for (unsigned i=0; i<result_repl.GetSize(); i++) //result_repl.GetSize()
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -419,7 +419,7 @@ public:
             double u = result_repl[i];
 
             (*p_file) << x << " " << y << " " << z << " " << u << "\n";
-            cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
+            //cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
         }
 
         TRACE("Completed writing the linear solve values");
