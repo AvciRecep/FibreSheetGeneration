@@ -93,7 +93,7 @@ private:
   void ReadFilesIntoMap() //throw(Exception)
   {
       std::cout << "Read Files Into Map\n";
-      std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.face");
+      std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
       if (!inFace)
       {
           cout << "There was a problem opening faces for reading " << endl;
@@ -122,7 +122,7 @@ private:
 
       nodeInfo_st nodeStructure;
 
-      std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.node");
+      std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
       if (!inCoordinate)
       {
           cout << "There was a problem opening coordinates for reading " << endl;
