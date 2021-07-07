@@ -92,7 +92,7 @@ private:
     void ReadFilesIntoMap() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
-        std::ifstream inFace("projects/mesh/Stomach3D/hsb16_tesel_4.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/hsb16_tesel_4.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -121,13 +121,13 @@ private:
 
         nodeInfo_st nodeStructure;
 
-        std::ifstream inCoordinate("projects/mesh/Stomach3D/hsb16_tesel_4.1.node");
+        std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/hsb16_tesel_4.1.node");
         if (!inCoordinate)
         {
             cout << "There was a problem opening coordinates for reading " << endl;
         }
 
-        ifstream inElemDetails("projects/mesh/Stomach3D/hsb16_tesel_4.1.ipxi");
+        ifstream inElemDetails("projects/mesh/FibreSheetGeneration/hsb16_tesel_4.1.ipxi");
         if (!inElemDetails)
         {
             cout << "There was a problem opening element details for reading " << endl;
@@ -225,8 +225,8 @@ public:
 
     void TestSolvingFibre() //throw(Exception)
     {
-        /*
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/hsb16_tesel_4.1");
+
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/hsb16_tesel_4.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -288,7 +288,7 @@ public:
         ReplicatableVector result_repl(result);
 
 
-        OutputFileHandler output_file_handler("TestLaplaceHSB016_4_Longi");
+        OutputFileHandler output_file_handler("TestLaplaceHSB016_4_Longi_v2");
 
         out_stream p_file = output_file_handler.OpenOutputFile("hsb16_tesel_4_linear_solution_longi.txt");
 
@@ -350,13 +350,12 @@ public:
             fibre_directions.push_back(fibre_direction);
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplaceHSB016_4_Longi", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplaceHSB016_4_Longi_v2", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
 
         PetscTools::Destroy(result);
-        */
     }
 
 };

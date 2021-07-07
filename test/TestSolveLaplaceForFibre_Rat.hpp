@@ -93,7 +93,7 @@ private:
   void ReadFilesIntoMap() //throw(Exception)
   {
       std::cout << "Read Files Into Map\n";
-      std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
+      std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.face");
       if (!inFace)
       {
           cout << "There was a problem opening faces for reading " << endl;
@@ -122,13 +122,13 @@ private:
 
       nodeInfo_st nodeStructure;
 
-      std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
+      std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.node");
       if (!inCoordinate)
       {
           cout << "There was a problem opening coordinates for reading " << endl;
       }
 
-      ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.ipxi");
+      ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.ipxi");
       if (!inElemDetails)
       {
           cout << "There was a problem opening element details for reading " << endl;
@@ -182,7 +182,7 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -210,7 +210,7 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
+        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -257,7 +257,7 @@ private:
                         dir_bound_1.push_back(nodeSt);
                     }
                 }
-                else if (myNodeInfo.cmEle >= 73 && myNodeInfo.cmEle < 80 )
+                else if (myNodeInfo.cmEle >= 73 && myNodeInfo.cmEle < 81 )
                 {
                     if(myNodeInfo.Xi1 > 0.99)
                     {
@@ -341,7 +341,7 @@ public:
     void TestSolvingFibre() //throw(Exception)
     {
 
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_8_8_1.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -402,16 +402,15 @@ public:
 
         ReplicatableVector result_repl(result);
 
+        OutputFileHandler output_file_handler("TestLaplace_rat_2L_8_8_1_longi_v2");
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_8_8_1_longi_v2");
-
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_8_8_1_linear_sol_longi.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_2L_8_8_1_linear_sol_longi.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 
 
         // Loop over the entries of the solution. //
-        for (unsigned i=0; i<25001; i++) //result_repl.GetSize()-300
+        for (unsigned i=0; i<result_repl.GetSize(); i++) //result_repl.GetSize()
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             double y = mesh.GetNode(i)->rGetLocation()[1];
@@ -419,18 +418,17 @@ public:
             double u = result_repl[i];
 
             (*p_file) << x << " " << y << " " << z << " " << u << "\n";
-            cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
+            //cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
         }
 
         TRACE("Completed writing the linear solve values");
 
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_8_8_1_grad_longi.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_8_8_1_mag_grad_longi.txt");
-        std::vector<c_vector<double, 3u> > fibre_directions;
-        c_vector<double, 3u> Node1, Node2, Node3, Node4;
-
-        c_vector<double, 3> potVec, gradVec;
-        c_matrix<double, 3, 3> element_jacobian, inverse_jacobian;
+        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_2L_8_8_1_grad_longi.txt");
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_2L_8_8_1_mag_grad_longi.txt");
+        std::vector<c_vector<double,3u> > fibre_directions;
+        c_vector<double,3u> Node1, Node2, Node3, Node4;
+        c_vector<double,3> potVec, gradVec;
+        c_matrix<double,3,3> element_jacobian, inverse_jacobian;
         double dummy;
         for(unsigned i = 0; i < mesh.GetNumElements(); i++)
         {
@@ -438,6 +436,7 @@ public:
             double L2 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(1)];
             double L3 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(2)];
             double L4 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(3)];
+
             mesh.GetElement(i)->CalculateInverseJacobian(element_jacobian,
                                   dummy,inverse_jacobian);
 
@@ -445,18 +444,18 @@ public:
             potVec[1] = L3-L1;
             potVec[2] = L4-L1;
 
-            gradVec =  prod(trans(inverse_jacobian), potVec);
-            double magnitude = sqrt(gradVec[0]* gradVec[0]+ gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
-            c_vector<double, 3u> fibre_direction;
-
-            if (magnitude < 5 )
+            gradVec = prod(trans(inverse_jacobian), potVec);
+            double magnitude = sqrt(gradVec[0]* gradVec[0] + gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
+            c_vector<double,3u> fibre_direction;
+/*
+            if (magnitude < 5)
             {
                 fibre_direction = fibre_directions[i-1];
                 gradVec[0] = fibre_direction[0];
                 gradVec[1] = fibre_direction[1];
                 gradVec[2] = fibre_direction[2];
             }
-
+*/
             (*p_file_grad) << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
             (*p_file_grad_mag) << magnitude  <<  "\n";
 
@@ -466,7 +465,7 @@ public:
             fibre_directions.push_back(fibre_direction);
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_8_8_1_longi_v2", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_2L_8_8_1_longi_v2", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
