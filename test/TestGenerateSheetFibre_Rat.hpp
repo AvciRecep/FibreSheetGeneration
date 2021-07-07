@@ -45,13 +45,13 @@ public:
 
     void TestCalculateSheetHR()
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_2L_8_8_1.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_8_8_1.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream gradijk("/tmp/ravc486/testoutput/TestLaplace_rat_2L_8_8_1_longi_v2/rat_8_8_1_grad_longi.txt");
+        std::ifstream gradijk("/tmp/ravc486/testoutput/TestLaplace_rat_8_8_1_longi_v2/rat_8_8_1_grad_longi.txt");
         if (!gradijk)
         {
             cout << "There was a problem opening laplace gradient for reading " << endl;
