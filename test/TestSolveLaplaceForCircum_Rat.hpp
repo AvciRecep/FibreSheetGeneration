@@ -97,10 +97,10 @@ private:
 
 private:
 
-    void ReadFilesIntoMap() //throw(Exception)
+    void ReadFilesIntoMap_Rat() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -128,7 +128,7 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
+        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening coordinates for reading " << endl;
@@ -141,7 +141,7 @@ private:
         stringstream numNodeLine(line);
         numNodeLine >> numNodes >> dummy1 >> dummy2 >> dummy3;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -185,10 +185,10 @@ private:
         cout << "1 -- " << dir_bound_1.size() << endl;
     }
 
-    void ReadFilesIntoMap_v2() //throw(Exception)
+    /*void ReadFilesIntoMap_v2() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_16_16_1_x1.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -217,13 +217,13 @@ private:
 
         nodeInfo_st nodeStructure;
 
-        std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.node");
+        std::ifstream inCoordinate("projects/mesh/FibreSheetGeneration/rat_16_16_1_x1.1.node");
         if (!inCoordinate)
         {
             cout << "There was a problem opening coordinates for reading " << endl;
         }
 
-        ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_8_8_1.1.ipxi");
+        ifstream inElemDetails("projects/mesh/FibreSheetGeneration/rat_16_16_1_x1.1.ipxi");
         if (!inElemDetails)
         {
             cout << "There was a problem opening element details for reading " << endl;
@@ -259,7 +259,6 @@ private:
         cout << "Vector size -- " << tetNodeInfo.size() << endl;
     }
 
-
     void sortDirchletAndNeumann() //throw(Exception)
     {
 
@@ -289,13 +288,13 @@ private:
         }
         cout << "0 -- " << dir_bound_0.size() << endl;
         cout << "1 -- " << dir_bound_1.size() << endl;
-    }
+    }*/
 
 public:
 
     void TestSolvingCircum() //throw(Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_8_8_1.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_16_16_1.1");
         // Now declare a tetrahedral mesh with the same dimensions...
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader.
@@ -305,10 +304,10 @@ public:
         MyPde pde;
 
         TRACE("Read files into map");
-        ReadFilesIntoMap_v2();
+        ReadFilesIntoMap_Rat();
 
         TRACE("Sort dirichilet boundaries");
-        sortDirchletAndNeumann();
+        sortDirchletAndNeumann_Rat();
 
         TRACE("Begin Fibre solve process");
         BoundaryConditionsContainer<3,3,1> bcc;
@@ -357,9 +356,9 @@ public:
         ReplicatableVector result_repl(result);
 
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_8_8_1_circum_v2");
+        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_circum_Dec2021");
 
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_8_8_1_linear_sol_circum.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1_linear_sol_circum.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 
@@ -377,8 +376,8 @@ public:
 
         TRACE("Completed writing the linear solve values");
 
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_8_8_1_grad_circum.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_8_8_1_mag_grad_circum.txt");
+        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_16_16_1_grad_circum.txt");
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_16_16_1_mag_grad_circum.txt");
         std::vector<c_vector<double, 3u> > fibre_directions;
         c_vector<double, 3u> Node1, Node2, Node3, Node4;
 
@@ -419,13 +418,12 @@ public:
             fibre_directions.push_back(fibre_direction);
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_8_8_1_circum_v2", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_circum_Dec2021", "mesh", false);
         mesh_writer.AddCellData("Normal Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
         PetscTools::Destroy(result);
     }
-
 };
 
 #endif
