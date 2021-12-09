@@ -4,3 +4,5 @@ TestSolveLaplaceForCircum_Human.hpp
 TestSolveLaplaceForCircum_Rat.hpp
 TestSolveLaplaceForFibre_Human.hpp
 TestSolveLaplaceForFibre_Rat.hpp
+TestSolveLaplaceForCircum_Rat_ForJoe.hpp
+TestSolveLaplaceForFibre_Rat_ForJoe.hpp
