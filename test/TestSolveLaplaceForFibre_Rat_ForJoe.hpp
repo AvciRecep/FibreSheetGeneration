@@ -29,7 +29,7 @@
 
 #include "Debug.hpp"
 
-#define PI 3.14159265
+#define PI 3.141593
 
 using namespace std;
 
