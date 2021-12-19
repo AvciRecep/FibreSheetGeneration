@@ -141,7 +141,7 @@ private:
         stringstream numNodeLine(line);
         numNodeLine >> numNodes >> dummy1 >> dummy2 >> dummy3;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.1.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_16_16_1.2.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -356,7 +356,7 @@ public:
         ReplicatableVector result_repl(result);
 
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_circum_Dec2021");
+        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_circum_Dec2021_v2");
 
         out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1_linear_sol_circum.txt");
 
@@ -418,7 +418,7 @@ public:
             fibre_directions.push_back(fibre_direction);
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_circum_Dec2021", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_circum_Dec2021_v2", "mesh", false);
         mesh_writer.AddCellData("Normal Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 

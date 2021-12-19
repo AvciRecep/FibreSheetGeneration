@@ -50,20 +50,20 @@ public:
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream gradijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_longi_Dec2021/rat_16_16_1_grad_longi.txt");
+        std::ifstream gradijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_longi_Dec2021_v2/rat_16_16_1_grad_longi.txt");
         if (!gradijk)
         {
             cout << "There was a problem opening laplace gradient for reading " << endl;
         }
 
-        std::ifstream gradNormalijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_circum_Dec2021/rat_16_16_1_grad_circum.txt");
+        std::ifstream gradNormalijk("/tmp/ravc486/testoutput/TestLaplace_rat_16_16_1_circum_Dec2021_v2/rat_16_16_1_grad_circum.txt");
 
         if (!gradNormalijk)
         {
             cout << "There was a problem opening laplace gradient normal for reading " << endl;
         }
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_ortho_Dec2021");
+        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_ortho_Dec2021_v2");
         out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1.1.ortho");
         double x, y, z;
         Vector3d fibre;
@@ -149,7 +149,7 @@ public:
                       << normal(0) << " " << normal(1) << " " << normal(2) << "\n";
         }
         p_file->close();
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_ortho_Dec2021", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_rat_16_16_1_ortho_Dec2021_v2", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.AddCellData("Sheet Direction", sheet_directions);
         mesh_writer.AddCellData("Cross Direction", cross_directions);
