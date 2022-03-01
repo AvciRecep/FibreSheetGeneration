@@ -103,7 +103,7 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/stom_surf_mesh.1.face");
+        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -131,7 +131,7 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/stom_surf_mesh.1.node");
+        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -157,7 +157,7 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/stom_surf_mesh.2.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -206,7 +206,7 @@ public:
     void TestSolvingFibre() //throw(Exception)
     {
 
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/stom_surf_mesh.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -269,9 +269,9 @@ public:
 
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_stom_surf_mesh_longi_v2");
+        OutputFileHandler output_file_handler("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2");
 
-        out_stream p_file = output_file_handler.OpenOutputFile("stom_surf_mesh_linear_sol_longi.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_laplace_longi.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 
@@ -290,8 +290,8 @@ public:
 
         TRACE("Completed writing the linear solve values");
 
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("stom_surf_mesh_grad_longi.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("stom_surf_mesh_mag_grad_longi.txt");
+        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_grad_longi.txt");
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_mag_grad_longi.txt");
         std::vector<c_vector<double,3u> > fibre_directions;
         c_vector<double,3u> Node1, Node2, Node3, Node4;
         c_vector<double,3> potVec, gradVec;
@@ -331,7 +331,7 @@ public:
             fibre_direction[2] = gradVec[2];
             fibre_directions.push_back(fibre_direction);
 
-            if(i==100000000)
+            if(i==1000000000)
             {
               TRACE("BEGIN\n");
               cout << "Element ID: " << i << " L1: " << L1 << " L2: " << L2 << " L3: " << L3 << " L4: " << L4 << "\n";
@@ -344,7 +344,7 @@ public:
             }
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_stom_surf_mesh_longi_v2", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
