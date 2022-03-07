@@ -157,7 +157,7 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.boun");
+        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.xi.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -269,7 +269,7 @@ public:
 
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2");
+        OutputFileHandler output_file_handler("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2_xi");
 
         out_stream p_file = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_laplace_longi.txt");
 
@@ -344,7 +344,7 @@ public:
             }
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2_xi", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
