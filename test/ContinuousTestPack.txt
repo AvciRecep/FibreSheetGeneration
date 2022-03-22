@@ -4,3 +4,4 @@ TestSolveLaplaceCircumferential_Human.hpp
 TestSolveLaplaceCircumferential_Rat.hpp
 TestSolveLaplaceLongitudinal_Human.hpp
 TestSolveLaplaceLongitudinal_Rat.hpp
+TestSolveLaplaceLongitudinal_Rat_SW.hpp

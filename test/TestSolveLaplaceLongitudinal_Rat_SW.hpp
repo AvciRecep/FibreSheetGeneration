@@ -104,7 +104,7 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/sw/rat_16_16_1.1.face");
+        std::ifstream inFace("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -132,7 +132,7 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/sw/rat_16_16_1.1.node");
+        std::ifstream inNode("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -158,7 +158,7 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/sw/rat_16_16_1_sw.boun");
+        ifstream inBoun("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1.sw.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -216,7 +216,7 @@ public:
     void TestSolvingFibre() //throw(Exception)
     {
 
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/sw/rat_16_16_1.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -292,9 +292,9 @@ public:
 
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_rat_16_16_1_longi_sw");
+        OutputFileHandler output_file_handler("TestLaplace_longi_rat_scaffold_nopylorus_noesophagus_16_16_1.1.sw");
 
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_16_16_1_linear_sol_longi_sw.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_nopylorus_noesophagus_16_16_1.1_laplace_longi_sw.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 

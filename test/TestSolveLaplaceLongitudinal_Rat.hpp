@@ -103,7 +103,7 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.face");
+        std::ifstream inFace("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.face");
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -131,7 +131,7 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.node");
+        std::ifstream inNode("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.node");
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -157,7 +157,7 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1.xi.boun");
+        ifstream inBoun("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.boun");
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -206,7 +206,7 @@ public:
     void TestSolvingFibre() //throw(Exception)
     {
 
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -269,9 +269,9 @@ public:
 
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2_xi");
+        OutputFileHandler output_file_handler("TestLaplace_longi_rat_scaffold_section_16_16_2.1");
 
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_laplace_longi.txt");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_laplace_longi.txt");
 
         PRINT_VARIABLE(result_repl.GetSize());
 
@@ -290,13 +290,14 @@ public:
 
         TRACE("Completed writing the linear solve values");
 
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_grad_longi.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2_mag_grad_longi.txt");
+        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_grad_longi.txt");
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_mag_grad_longi.txt");
         std::vector<c_vector<double,3u> > fibre_directions;
         c_vector<double,3u> Node1, Node2, Node3, Node4;
         c_vector<double,3> potVec, gradVec;
         c_matrix<double,3,3> element_jacobian, inverse_jacobian;
         double dummy;
+        int cmag = 0;
         for(unsigned i = 0; i < mesh.GetNumElements(); i++)
         {
             double L1 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(0)];
@@ -314,15 +315,16 @@ public:
             gradVec = prod(trans(inverse_jacobian), potVec);
             double magnitude = sqrt(gradVec[0]* gradVec[0] + gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
             c_vector<double,3u> fibre_direction;
-/*
-            if (magnitude < 5)
+            if (magnitude < 2)
             {
                 fibre_direction = fibre_directions[i-1];
                 gradVec[0] = fibre_direction[0];
                 gradVec[1] = fibre_direction[1];
                 gradVec[2] = fibre_direction[2];
+                cmag += 1;
+                cout << "Mag " << cmag << ": " << magnitude << "\n";
             }
-*/
+
             (*p_file_grad) << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
             (*p_file_grad_mag) << magnitude  <<  "\n";
 
@@ -344,7 +346,7 @@ public:
             }
         }
 
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2_xi", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_scaffold_section_16_16_2.1", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 

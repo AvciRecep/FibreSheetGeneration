@@ -43,27 +43,27 @@ public:
 
     void TestCalculateFibreSheetNormal()
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/FibreSheetGeneration/rat_cm_32_32_8_lm_32_32_2.1");
+        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream grad_longi_ijk("/tmp/ravc486/testoutput/TestLaplace_longi_rat_cm_32_32_8_lm_32_32_2/rat_cm_32_32_8_lm_32_32_2_grad_longi.txt");
+        std::ifstream grad_longi_ijk("/hpc/ravc486/Projects/SPARC/RatScaffold/scaffold_test/mesh/TestLaplace_longi_rat_scaffold_section_16_16_2.1/rat_scaffold_section_16_16_2_grad_longi.txt");
         if (!grad_longi_ijk)
         {
             cout << "There was a problem opening laplace gradient for reading " << endl;
         }
 
-        std::ifstream grad_circum_ijk("/tmp/ravc486/testoutput/TestLaplace_circum_rat_cm_32_32_8_lm_32_32_2/rat_cm_32_32_8_lm_32_32_2_grad_circum.txt");
+        std::ifstream grad_circum_ijk("/hpc/ravc486/Projects/SPARC/RatScaffold/scaffold_test/mesh/TestLaplace_circum_rat_scaffold_section_16_16_2.1/rat_scaffold_section_16_16_2_grad_circum.txt");
 
         if (!grad_circum_ijk)
         {
             cout << "There was a problem opening laplace gradient normal for reading " << endl;
         }
 
-        OutputFileHandler output_file_handler("TestLaplace_ortho_rat_cm_32_32_8_lm_32_32_2");
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_cm_32_32_8_lm_32_32_2.1.ortho");
+        OutputFileHandler output_file_handler("TestLaplace_ortho_rat_scaffold_section_16_16_2.1");
+        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2.1.ortho");
         double x, y, z;
         Vector3d fibre;
         Vector3d sheet;
@@ -147,7 +147,7 @@ public:
                       << normal(0) << " " << normal(1) << " " << normal(2) << "\n";
         }
         p_file->close();
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_ortho_rat_cm_32_32_8_lm_32_32_2", "mesh", false);
+        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_ortho_rat_scaffold_section_16_16_2.1", "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.AddCellData("Sheet Direction", sheet_directions);
         mesh_writer.AddCellData("Normal Direction", normal_directions);
