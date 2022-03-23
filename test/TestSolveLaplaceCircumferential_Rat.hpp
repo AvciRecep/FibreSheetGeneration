@@ -58,6 +58,9 @@ struct nodeBoun_st
     double long_boun;
     double circ_boun;
 };
+string file_name = "rat_scaffold_16_16_2.1";
+string full_path = "";
+
 class MyPde : public AbstractLinearEllipticPde<3,3>
 {
 private:
@@ -100,7 +103,9 @@ private:
     void ReadFilesIntoMap_Rat() //throw(Exception)
     {
         std::cout << "Read Files Into Map\n";
-        std::ifstream inFace("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.face");
+        // Read face file
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".face";
+        std::ifstream inFace(full_path);
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -128,7 +133,8 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.node");
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".node";
+        std::ifstream inNode(full_path);
         if (!inNode)
         {
             cout << "There was a problem opening coordinates for reading " << endl;
@@ -141,7 +147,9 @@ private:
         stringstream numNodeLine(line);
         numNodeLine >> numNodes >> dummy1 >> dummy2 >> dummy3;
 
-        ifstream inBoun("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.boun");
+        // Read boundary condition file
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".boun";
+        ifstream inBoun(full_path);
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -189,7 +197,9 @@ public:
 
     void TestSolvingCircum() //throw(Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1");
+        // Read mesh files
+        full_path = "projects/mesh/Stomach3D/" + file_name;
+        TrianglesMeshReader<3,3> mesh_reader(full_path);
         // Now declare a tetrahedral mesh with the same dimensions...
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader.
@@ -247,12 +257,12 @@ public:
 
         // To solve, just call {{{Solve()}}}. A PETSc vector is returned.
         Vec result = solver.Solve();
-
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_circum_rat_scaffold_section_16_16_2.1");
-
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_laplace_circum.txt");
+        full_path = "test_laplace_circum_" + file_name;
+        OutputFileHandler output_file_handler(full_path);
+        full_path = file_name+"_laplace_circum.txt";
+        out_stream p_file = output_file_handler.OpenOutputFile(full_path);
 
         PRINT_VARIABLE(result_repl.GetSize());
 
@@ -269,9 +279,10 @@ public:
         }
 
         TRACE("Completed writing the linear solve values");
-
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_grad_circum.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_mag_grad_circum.txt");
+        full_path = file_name+"_laplace_circum_grad.txt";
+        out_stream p_file_grad = output_file_handler.OpenOutputFile(full_path);
+        full_path = file_name+"_laplace_circum_grad_mag.txt";
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile(full_path);
         std::vector<c_vector<double, 3u> > fibre_directions;
         c_vector<double, 3u> Node1, Node2, Node3, Node4;
 
@@ -294,8 +305,7 @@ public:
             gradVec =  prod(trans(inverse_jacobian), potVec);
             double magnitude = sqrt(gradVec[0]* gradVec[0]+ gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
             c_vector<double, 3u> fibre_direction;
-
-            if (magnitude < 5)
+            if (magnitude < 0.5)
             {
                 fibre_direction = fibre_directions[i-1];
                 gradVec[0] = fibre_direction[0];
@@ -311,8 +321,8 @@ public:
             fibre_direction[2] = gradVec[2];
             fibre_directions.push_back(fibre_direction);
         }
-
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_circum_rat_scaffold_section_16_16_2.1", "mesh", false);
+        full_path = "test_laplace_circum_" + file_name;
+        VtkMeshWriter<3u, 3u> mesh_writer(full_path, "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 

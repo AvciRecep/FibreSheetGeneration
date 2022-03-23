@@ -1,4 +1,3 @@
-
 #ifndef TESTSOLVELAPLACEFORFIBRE_HPP_
 #define TESTSOLVELAPLACEFORFIBRE_HPP_
 
@@ -59,6 +58,8 @@ struct nodeBoun_st
     double long_boun;
     double circ_boun;
 };
+string file_name = "rat_scaffold_16_16_2.1";
+string full_path = "";
 
 class MyPde : public AbstractLinearEllipticPde<3,3>
 {
@@ -104,7 +105,8 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.face");
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".face";
+        std::ifstream inFace(full_path);
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -132,7 +134,8 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1.node");
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".node";
+        std::ifstream inNode(full_path);
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -158,7 +161,9 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1.sw.boun");
+        // Read boundary condition file
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".sw.boun";
+        ifstream inBoun(full_path);
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -215,8 +220,10 @@ private:
 public:
     void TestSolvingFibre() //throw(Exception)
     {
+        // Read mesh files
+        full_path = "projects/mesh/Stomach3D/" + file_name;
+        TrianglesMeshReader<3,3> mesh_reader(full_path);
 
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_nopylorus_noesophagus_16_16_1.1");
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -289,15 +296,14 @@ public:
 
         // To solve, just call {{{Solve()}}}. A PETSc vector is returned. //
         Vec result = solver.Solve();
-
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_longi_rat_scaffold_nopylorus_noesophagus_16_16_1.1.sw");
-
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_nopylorus_noesophagus_16_16_1.1_laplace_longi_sw.txt");
+        full_path = "test_laplace_longi_" + file_name + ".sw";
+        OutputFileHandler output_file_handler(full_path);
+        full_path = file_name+"_laplace_longi_sw.txt";
+        out_stream p_file = output_file_handler.OpenOutputFile(full_path);
 
         PRINT_VARIABLE(result_repl.GetSize());
-
 
         // Loop over the entries of the solution. //
         for (unsigned i=0; i<result_repl.GetSize(); i++) //result_repl.GetSize()
@@ -312,67 +318,7 @@ public:
         }
 
         TRACE("Completed writing the linear solve values");
-/*
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("stom_surf_mesh_grad_longi.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("stom_surf_mesh_mag_grad_longi.txt");
-        std::vector<c_vector<double,3u> > fibre_directions;
-        c_vector<double,3u> Node1, Node2, Node3, Node4;
-        c_vector<double,3> potVec, gradVec;
-        c_matrix<double,3,3> element_jacobian, inverse_jacobian;
-        double dummy;
-        for(unsigned i = 0; i < mesh.GetNumElements(); i++)
-        {
-            double L1 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(0)];
-            double L2 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(1)];
-            double L3 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(2)];
-            double L4 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(3)];
-
-            mesh.GetElement(i)->CalculateInverseJacobian(element_jacobian,
-                                  dummy,inverse_jacobian);
-
-            potVec[0] = L2-L1;
-            potVec[1] = L3-L1;
-            potVec[2] = L4-L1;
-
-            gradVec = prod(trans(inverse_jacobian), potVec);
-            double magnitude = sqrt(gradVec[0]* gradVec[0] + gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
-            c_vector<double,3u> fibre_direction;
-
-            if (magnitude < 5)
-            {
-                fibre_direction = fibre_directions[i-1];
-                gradVec[0] = fibre_direction[0];
-                gradVec[1] = fibre_direction[1];
-                gradVec[2] = fibre_direction[2];
-            }
-
-            (*p_file_grad) << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
-            (*p_file_grad_mag) << magnitude  <<  "\n";
-
-            fibre_direction[0] = gradVec[0];
-            fibre_direction[1] = gradVec[1];
-            fibre_direction[2] = gradVec[2];
-            fibre_directions.push_back(fibre_direction);
-
-            if(i==100000000)
-            {
-              TRACE("BEGIN\n");
-              cout << "Element ID: " << i << " L1: " << L1 << " L2: " << L2 << " L3: " << L3 << " L4: " << L4 << "\n";
-              cout << "Node 0 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(0) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[2]<< "\n";
-              cout << "Node 1 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(1) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[2]<< "\n";
-              cout << "Node 2 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(2) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[2]<< "\n";
-              cout << "Node 2 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(3) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[2]<< "\n";
-              cout << "GradVec: " << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
-              TRACE("END");
-            }
-        }
-
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_stom_surf_mesh_longi_v2", "mesh", false);
-        mesh_writer.AddCellData("Fibre Direction", fibre_directions);
-        mesh_writer.WriteFilesUsingMesh(mesh);
-*/
         PetscTools::Destroy(result);
     }
-
 };
 #endif

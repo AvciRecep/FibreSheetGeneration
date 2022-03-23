@@ -35,6 +35,9 @@ using Eigen::Vector3d;
 using Eigen::Quaterniond;
 #include "VtkMeshWriter.hpp"
 
+std::string file_name = "rat_scaffold_16_16_2.1";
+std::string output_path = "/hpc/ravc486/Projects/CHASTE/chaste-hpc/chaste_ravc486/testoutput/";
+
 class TestGenerateFibreSheetNormal : public CxxTest::TestSuite
 {
 private:
@@ -43,32 +46,56 @@ public:
 
     void TestCalculateFibreSheetNormal()
     {
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1");
+        // Read mesh files
+        std::string full_path = "projects/mesh/Stomach3D/" + file_name;
+        TrianglesMeshReader<3,3> mesh_reader(full_path);
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::ifstream grad_longi_ijk("/hpc/ravc486/Projects/SPARC/RatScaffold/scaffold_test/mesh/TestLaplace_longi_rat_scaffold_section_16_16_2.1/rat_scaffold_section_16_16_2_grad_longi.txt");
+        full_path = output_path + "test_laplace_longi_" + file_name + "/" + file_name + "_laplace_longi_grad.txt";
+        std::ifstream grad_longi_ijk(full_path);
         if (!grad_longi_ijk)
         {
-            cout << "There was a problem opening laplace gradient for reading " << endl;
+            cout << "There was a problem opening laplace longitudinal gradient for reading " << endl;
         }
 
-        std::ifstream grad_circum_ijk("/hpc/ravc486/Projects/SPARC/RatScaffold/scaffold_test/mesh/TestLaplace_circum_rat_scaffold_section_16_16_2.1/rat_scaffold_section_16_16_2_grad_circum.txt");
-
+        full_path = output_path + "test_laplace_circum_" + file_name + "/" + file_name + "_laplace_circum_grad.txt";
+        std::ifstream grad_circum_ijk(full_path);
         if (!grad_circum_ijk)
         {
-            cout << "There was a problem opening laplace gradient normal for reading " << endl;
+            cout << "There was a problem opening laplace circumferential gradient for reading " << endl;
         }
 
-        OutputFileHandler output_file_handler("TestLaplace_ortho_rat_scaffold_section_16_16_2.1");
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2.1.ortho");
+        full_path = "test_laplace_ortho_"+file_name;
+        OutputFileHandler output_file_handler(full_path);
+        full_path = file_name+".ortho";
+        out_stream p_file = output_file_handler.OpenOutputFile(full_path);
+
+        // Read the first line in element file to get number of element and write it to the ortho file
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".ele";
+        std::ifstream inElem(full_path);
+        if (!inElem)
+        {
+            cout << "There was a problem opening faces for reading " << endl;
+        }
+        std::string line;
+        if(!std::getline(inElem, line))
+        {
+            cout << "Error reading file line" << endl;
+        }
+        unsigned int numElem, dummy1, dummy2;
+        stringstream numElemLine(line);
+        numElemLine >> numElem >> dummy1 >> dummy2;
+        (*p_file) << numElem << "\n";
+
+        // Compute and write fibre, sheet, normal vectors
         double x, y, z;
         Vector3d fibre;
         Vector3d sheet;
         Vector3d normal;
-        string line;
+
         std::vector<c_vector<double, 3u> > fibre_directions;
         std::vector<c_vector<double, 3u> > sheet_directions;
         std::vector<c_vector<double, 3u> > normal_directions;
@@ -147,7 +174,10 @@ public:
                       << normal(0) << " " << normal(1) << " " << normal(2) << "\n";
         }
         p_file->close();
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_ortho_rat_scaffold_section_16_16_2.1", "mesh", false);
+
+        // Write mesh with fibres as a vtk file
+        full_path = "test_laplace_ortho_" + file_name;
+        VtkMeshWriter<3u, 3u> mesh_writer(full_path, "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.AddCellData("Sheet Direction", sheet_directions);
         mesh_writer.AddCellData("Normal Direction", normal_directions);

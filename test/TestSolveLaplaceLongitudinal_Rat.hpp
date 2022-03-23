@@ -1,4 +1,3 @@
-
 #ifndef TESTSOLVELAPLACEFORFIBRE_HPP_
 #define TESTSOLVELAPLACEFORFIBRE_HPP_
 
@@ -26,7 +25,7 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
-
+#include <string>
 #include "Debug.hpp"
 
 #define PI 3.14159265
@@ -59,6 +58,8 @@ struct nodeBoun_st
     double long_boun;
     double circ_boun;
 };
+string file_name = "rat_scaffold_16_16_2.1";
+string full_path = "";
 
 class MyPde : public AbstractLinearEllipticPde<3,3>
 {
@@ -103,7 +104,8 @@ private:
   {
         std::cout << "Read Files Into Map\n";
         // Read face file
-        std::ifstream inFace("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.face");
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".face";
+        std::ifstream inFace(full_path);
         if (!inFace)
         {
             cout << "There was a problem opening faces for reading " << endl;
@@ -131,7 +133,8 @@ private:
         cout << "Number of nodes in face: " << face_node.size() << endl;
 
         // Read node file
-        std::ifstream inNode("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.node");
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".node";
+        std::ifstream inNode(full_path);
         if (!inNode)
         {
             cout << "There was a problem opening nodes for reading " << endl;
@@ -157,7 +160,9 @@ private:
 
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
-        ifstream inBoun("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1.boun");
+        // Read boundary condition file
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".boun";
+        ifstream inBoun(full_path);
         if (!inBoun)
         {
             cout << "There was a problem opening boundary file for reading " << endl;
@@ -205,8 +210,9 @@ private:
 public:
     void TestSolvingFibre() //throw(Exception)
     {
-
-        TrianglesMeshReader<3,3> mesh_reader("projects/mesh/Stomach3D/rat_scaffold_section_16_16_2.1");
+        // Read mesh files
+        full_path = "projects/mesh/Stomach3D/" + file_name;
+        TrianglesMeshReader<3,3> mesh_reader(full_path);
         // Now declare a tetrahedral mesh with the same dimensions... //
         TetrahedralMesh<3,3> mesh;
         // ... and construct the mesh using the mesh reader. //
@@ -242,7 +248,7 @@ public:
             for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_1.begin(); itr != dir_bound_1.end(); itr++)
             {
                 nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
+                if (x < (myNode.x + 0.0001) && x > (myNode.x - 0.0001) && y < (myNode.y + 0.0001) && y > (myNode.y - 0.0001) && z < (myNode.z + 0.0001) && z > (myNode.z - 0.0001))
                 {
                     bcc.AddDirichletBoundaryCondition(*iter, p_in_boundary_condition);
                     inCount++;
@@ -252,7 +258,7 @@ public:
             for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_0.begin(); itr != dir_bound_0.end(); itr++)
             {
                 nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
+                if (x < (myNode.x + 0.0001) && x > (myNode.x - 0.0001) && y < (myNode.y + 0.0001) && y > (myNode.y - 0.0001) && z < (myNode.z + 0.0001) && z > (myNode.z - 0.0001))
                 {
                     bcc.AddDirichletBoundaryCondition(*iter, p_zero_boundary_condition);
                     outCount++;
@@ -266,15 +272,14 @@ public:
 
         // To solve, just call {{{Solve()}}}. A PETSc vector is returned. //
         Vec result = solver.Solve();
-
         ReplicatableVector result_repl(result);
 
-        OutputFileHandler output_file_handler("TestLaplace_longi_rat_scaffold_section_16_16_2.1");
-
-        out_stream p_file = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_laplace_longi.txt");
+        full_path = "test_laplace_longi_" + file_name;
+        OutputFileHandler output_file_handler(full_path);
+        full_path = file_name+"_laplace_longi.txt";
+        out_stream p_file = output_file_handler.OpenOutputFile(full_path);
 
         PRINT_VARIABLE(result_repl.GetSize());
-
 
         // Loop over the entries of the solution. //
         for (unsigned i=0; i<result_repl.GetSize(); i++) //result_repl.GetSize()
@@ -289,22 +294,21 @@ public:
         }
 
         TRACE("Completed writing the linear solve values");
-
-        out_stream p_file_grad = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_grad_longi.txt");
-        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile("rat_scaffold_section_16_16_2_mag_grad_longi.txt");
+        full_path = file_name+"_laplace_longi_grad.txt";
+        out_stream p_file_grad = output_file_handler.OpenOutputFile(full_path);
+        full_path = file_name+"_laplace_longi_grad_mag.txt";
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile(full_path);
         std::vector<c_vector<double,3u> > fibre_directions;
         c_vector<double,3u> Node1, Node2, Node3, Node4;
         c_vector<double,3> potVec, gradVec;
         c_matrix<double,3,3> element_jacobian, inverse_jacobian;
         double dummy;
-        int cmag = 0;
         for(unsigned i = 0; i < mesh.GetNumElements(); i++)
         {
             double L1 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(0)];
             double L2 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(1)];
             double L3 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(2)];
             double L4 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(3)];
-
             mesh.GetElement(i)->CalculateInverseJacobian(element_jacobian,
                                   dummy,inverse_jacobian);
 
@@ -315,14 +319,12 @@ public:
             gradVec = prod(trans(inverse_jacobian), potVec);
             double magnitude = sqrt(gradVec[0]* gradVec[0] + gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
             c_vector<double,3u> fibre_direction;
-            if (magnitude < 2)
+            if (magnitude < 0.5)
             {
                 fibre_direction = fibre_directions[i-1];
                 gradVec[0] = fibre_direction[0];
                 gradVec[1] = fibre_direction[1];
                 gradVec[2] = fibre_direction[2];
-                cmag += 1;
-                cout << "Mag " << cmag << ": " << magnitude << "\n";
             }
 
             (*p_file_grad) << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
@@ -345,13 +347,12 @@ public:
               TRACE("END");
             }
         }
-
-        VtkMeshWriter<3u, 3u> mesh_writer("TestLaplace_longi_rat_scaffold_section_16_16_2.1", "mesh", false);
+        full_path = "test_laplace_longi_" + file_name;
+        VtkMeshWriter<3u, 3u> mesh_writer(full_path, "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.WriteFilesUsingMesh(mesh);
 
         PetscTools::Destroy(result);
     }
-
 };
 #endif
