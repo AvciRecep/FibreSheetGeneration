@@ -58,7 +58,7 @@ struct nodeBoun_st
     double long_boun;
     double circ_boun;
 };
-string file_name = "rat_scaffold_16_16_2.1";
+string file_name = "rat_cm_32_32_8_lm_32_32_2.1";
 string full_path = "";
 
 class MyPde : public AbstractLinearEllipticPde<3,3>

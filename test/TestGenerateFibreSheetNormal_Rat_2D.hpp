@@ -35,7 +35,7 @@ using Eigen::Vector3d;
 using Eigen::Quaterniond;
 #include "VtkMeshWriter.hpp"
 
-std::string file_name = "rat_cm_32_32_8_lm_32_32_2.1";
+std::string file_name = "rat_scaffold_64_64_2_2D";
 std::string laplace_path = "/hpc/ravc486/Projects/CHASTE/chaste-hpc/chaste_ravc486/testoutput/";
 
 class TestGenerateFibreSheetNormal : public CxxTest::TestSuite
@@ -43,14 +43,13 @@ class TestGenerateFibreSheetNormal : public CxxTest::TestSuite
 private:
 
 public:
-
     void TestCalculateFibreSheetNormal()
     {
         // Read mesh files
-        std::string full_path = "projects/mesh/Stomach3D/" + file_name;
-        TrianglesMeshReader<3,3> mesh_reader(full_path);
+        std::string full_path = "projects/mesh/Stomach2D/" + file_name;
+        TrianglesMeshReader<2,3> mesh_reader(full_path);
         // Now declare a tetrahedral mesh with the same dimensions... //
-        TetrahedralMesh<3,3> mesh;
+        TetrahedralMesh<2,3> mesh;
         // ... and construct the mesh using the mesh reader. //
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -74,7 +73,7 @@ public:
         out_stream p_file = output_file_handler.OpenOutputFile(full_path);
 
         // Read the first line in element file to get number of element and write it to the ortho file
-        full_path = "projects/mesh/Stomach3D/" + file_name + ".ele";
+        full_path = "projects/mesh/Stomach2D/" + file_name + ".ele";
         std::ifstream inElem(full_path);
         if (!inElem)
         {
@@ -157,7 +156,7 @@ public:
             normal_directions.push_back(normal_direction);
 
             // Write CHASTE ortho file //
-            if (((fibre.array() != fibre.array())).all() ||((normal.array() != normal.array())).all() ||((sheet.array() != sheet.array())).all() )
+            if (((fibre.array() != fibre.array())).all() ||((sheet.array() != sheet.array())).all() )
             {
                 fibre(0) = 1;
                 fibre(1) = 0;
@@ -177,7 +176,7 @@ public:
 
         // Write mesh with fibres as a vtk file
         full_path = "test_laplace_ortho_" + file_name;
-        VtkMeshWriter<3u, 3u> mesh_writer(full_path, "mesh", false);
+        VtkMeshWriter<2u, 3u> mesh_writer(full_path, "mesh", false);
         mesh_writer.AddCellData("Fibre Direction", fibre_directions);
         mesh_writer.AddCellData("Sheet Direction", sheet_directions);
         mesh_writer.AddCellData("Normal Direction", normal_directions);

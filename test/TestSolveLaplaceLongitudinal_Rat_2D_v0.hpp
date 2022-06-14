@@ -25,7 +25,7 @@
 #include <math.h>
 #include <fstream>
 #include <vector>
-
+#include <string>
 #include "Debug.hpp"
 
 #define PI 3.14159265
@@ -56,11 +56,12 @@ struct nodeBoun_st
     double y;
     double z;
     double long_boun;
+    double circ_boun;
 };
-string file_name = "rat_scaffold_16_16_2.1";
+string file_name = "rat_scaffold_16_16_2_2D";
 string full_path = "";
 
-class MyPde : public AbstractLinearEllipticPde<3,3>
+class MyPde : public AbstractLinearEllipticPde<2,3>
 {
 private:
 
@@ -70,12 +71,12 @@ public:
     {
     }
 
-    double ComputeConstantInUSourceTerm(const ChastePoint<3>& rX, Element<3,3>* pElement)
+    double ComputeConstantInUSourceTerm(const ChastePoint<3>& rX, Element<2,3>* pElement)
     {
         return 0.0;
     }
 
-    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3>& rX, Element<3,3>* pElement)
+    double ComputeLinearInUCoeffInSourceTerm(const ChastePoint<3>& rX, Element<2,3>* pElement)
     {
         return 0.0;
     }
@@ -93,10 +94,8 @@ class TestSolveLaplaceLongitudinal : public CxxTest::TestSuite
 private:
     std::vector<nodeInfo_st> tetNodeInfo;
     std::vector<nodeXYZ_st> all_nodes;
-    std::vector<nodeXYZ_st> dir_bound_prox_stom;
-    std::vector<nodeXYZ_st> dir_bound_limit_ridge;
-    std::vector<nodeXYZ_st> dir_bound_prox_pylo;
-    std::vector<nodeXYZ_st> dir_bound_dist_pylo;
+    std::vector<nodeXYZ_st> dir_bound_0;
+    std::vector<nodeXYZ_st> dir_bound_1;
     std::set<unsigned int> face_node;
     std::vector<nodeBoun_st> all_boun_Info;
 
@@ -162,7 +161,7 @@ private:
         cout << "Number of nodes in mesh: " << all_nodes.size() << endl;
 
         // Read boundary condition file
-        full_path = "projects/mesh/Stomach3D/" + file_name + ".sw.boun";
+        full_path = "projects/mesh/Stomach3D/" + file_name + ".lm.boun";
         ifstream inBoun(full_path);
         if (!inBoun)
         {
@@ -174,7 +173,7 @@ private:
         {
             std::getline(inBoun, line);
             stringstream bounInfo(line);
-            bounInfo >> bounStruct.x >> bounStruct.y >> bounStruct.z >> bounStruct.long_boun;
+            bounInfo >> bounStruct.x >> bounStruct.y >> bounStruct.z >> bounStruct.long_boun >> bounStruct.circ_boun;
             all_boun_Info.push_back(bounStruct);
             numNodesTmp--;
         }
@@ -187,147 +186,78 @@ private:
         for(std::vector<nodeBoun_st>::iterator itr = all_boun_Info.begin(); itr != all_boun_Info.end(); itr++)
         {
             nodeBoun_st myNodeInfo = *itr;
-            if (myNodeInfo.long_boun == 0)
+            if (myNodeInfo.long_boun == 1)
             {
               nodeXYZ_st nodeSt;
               nodeSt.x= myNodeInfo.x;
               nodeSt.y= myNodeInfo.y;
               nodeSt.z= myNodeInfo.z;
-              dir_bound_prox_stom.push_back(nodeSt);
+              dir_bound_1.push_back(nodeSt);
             }
-            else if (myNodeInfo.long_boun == 1)
+            else if (myNodeInfo.long_boun == 0)
             {
               nodeXYZ_st nodeSt;
               nodeSt.x= myNodeInfo.x;
               nodeSt.y= myNodeInfo.y;
               nodeSt.z= myNodeInfo.z;
-              dir_bound_limit_ridge.push_back(nodeSt);
-            }
-            else if (myNodeInfo.long_boun == 2)
-            {
-              nodeXYZ_st nodeSt;
-              nodeSt.x= myNodeInfo.x;
-              nodeSt.y= myNodeInfo.y;
-              nodeSt.z= myNodeInfo.z;
-              dir_bound_prox_pylo.push_back(nodeSt);
-            }
-            else if (myNodeInfo.long_boun == 3)
-            {
-              nodeXYZ_st nodeSt;
-              nodeSt.x= myNodeInfo.x;
-              nodeSt.y= myNodeInfo.y;
-              nodeSt.z= myNodeInfo.z;
-              dir_bound_dist_pylo.push_back(nodeSt);
+              dir_bound_0.push_back(nodeSt);
             }
         }
-        cout << "0 -- " << dir_bound_prox_stom.size() << endl;
-        cout << "1 -- " << dir_bound_limit_ridge.size() << endl;
-        cout << "2 -- " << dir_bound_prox_pylo.size() << endl;
-        cout << "3 -- " << dir_bound_dist_pylo.size() << endl;
+        cout << "0 -- " << dir_bound_0.size() << endl;
+        cout << "1 -- " << dir_bound_1.size() << endl;
     }
 
 public:
     void TestSolvingFibre() //throw(Exception)
     {
-        // Read mesh files
-        full_path = "projects/mesh/Stomach3D/" + file_name;
-        TrianglesMeshReader<3,3> mesh_reader(full_path);
-
-        // Now declare a tetrahedral mesh with the same dimensions... //
-        TetrahedralMesh<3,3> mesh;
-        // ... and construct the mesh using the mesh reader. //
+        ///// Read mesh files
+        full_path = "projects/mesh/Stomach2D/" + file_name;
+        TrianglesMeshReader<2,3> mesh_reader(full_path);
+        TetrahedralMesh<2,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Next we instantiate an instance of our PDE we wish to solve. //
+        ///// Next we instantiate an instance of our PDE we wish to solve.
         MyPde pde;
 
-        TRACE("Read files into map");
-        //ReadFilesIntoMap();
-        ReadFilesIntoMap_Rat();
-
-        TRACE("Sort dirichilet boundaries");
-        //sortDirchletAndNeumann();
-        sortDirchletAndNeumann_Rat();
-
-        TRACE("Begin Fibre solve process");
-        BoundaryConditionsContainer<3,3,1> bcc;
-
-        ConstBoundaryCondition<3>* p_prox_stom_boundary_condition = new ConstBoundaryCondition<3>(0.0);
-        ConstBoundaryCondition<3>* p_limit_ridge_boundary_condition = new ConstBoundaryCondition<3>(100);
-        ConstBoundaryCondition<3>* p_prox_pylo_boundary_condition = new ConstBoundaryCondition<3>(200);
-        ConstBoundaryCondition<3>* p_dist_pylo_boundary_condition = new ConstBoundaryCondition<3>(300);
-        // We then get a boundary node iterator from the mesh... //
-        TetrahedralMesh<3,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
-        // ...and loop over the boundary nodes, getting the x and y values. //
-        unsigned int zeroCount = 0;
-        unsigned int hundredCount = 0;
-        unsigned int twoHundredCount = 0;
-        unsigned int threeHundredCount = 0;
+        ///// Define boundary conditions
+        BoundaryConditionsContainer<2,3,1> bcc;
+        ConstBoundaryCondition<3>* zero_cond = new ConstBoundaryCondition<3>(0.0);
+        ConstBoundaryCondition<3>* hundred_cond = new ConstBoundaryCondition<3>(100);
+        TetrahedralMesh<2,3>::BoundaryNodeIterator iter = mesh.GetBoundaryNodeIteratorBegin();
+        int n = 0;
+        int n0 = 0;
+        int n100 = 0;
         while (iter < mesh.GetBoundaryNodeIteratorEnd())
         {
             double x = (*iter)->GetPoint()[0];
             double y = (*iter)->GetPoint()[1];
             double z = (*iter)->GetPoint()[2];
             // If x=0 or y=0... //
-            for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_prox_stom.begin(); itr != dir_bound_prox_stom.end(); itr++)
+            if (x*x+(y-1)*(y-1)+(z+4)*(z+4) < 0.1)
             {
-                nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
-                {
-                    bcc.AddDirichletBoundaryCondition(*iter, p_prox_stom_boundary_condition);
-                    zeroCount++;
-                }
+                bcc.AddDirichletBoundaryCondition(*iter, hundred_cond);
+                n100++;
             }
-
-            for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_limit_ridge.begin(); itr != dir_bound_limit_ridge.end(); itr++)
+            if ((x+0.02)*(x+0.02)+(y-1.35)*(y-1.35)+(z+1.79)*(z+1.79) < 0.1)
             {
-                nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
-                {
-                    bcc.AddDirichletBoundaryCondition(*iter, p_limit_ridge_boundary_condition);
-                    hundredCount++;
-                }
+                bcc.AddDirichletBoundaryCondition(*iter, zero_cond);
+                n0++;
             }
-
-            for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_prox_pylo.begin(); itr != dir_bound_prox_pylo.end(); itr++)
-            {
-                nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
-                {
-                    bcc.AddDirichletBoundaryCondition(*iter, p_prox_pylo_boundary_condition);
-                    twoHundredCount++;
-                }
-            }
-            for(std::vector<nodeXYZ_st>::iterator itr = dir_bound_dist_pylo.begin(); itr != dir_bound_dist_pylo.end(); itr++)
-            {
-                nodeXYZ_st myNode = *itr;
-                if (x < (myNode.x + 0.000001) && x > (myNode.x - 0.000001) && y < (myNode.y + 0.000001) && y > (myNode.y - 0.000001) && z < (myNode.z + 0.000001) && z > (myNode.z - 0.000001))
-                {
-                    bcc.AddDirichletBoundaryCondition(*iter, p_dist_pylo_boundary_condition);
-                    threeHundredCount++;
-                }
-            }
+            n++;
             iter++;
         }
-        cout << "Compared and found 0: " << zeroCount << endl;
-        cout << "Compared and found 100: " << hundredCount << endl;
-        cout << "Compared and found 200: " << twoHundredCount << endl;
-        cout << "Compared and found 300: " << threeHundredCount << endl;
 
-        SimpleLinearEllipticSolver<3,3> solver(&mesh, &pde, &bcc);
-
-        // To solve, just call {{{Solve()}}}. A PETSc vector is returned. //
+        ///// Solve
+        SimpleLinearEllipticSolver<2,3> solver(&mesh, &pde, &bcc);
         Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
-        full_path = "test_laplace_longi_" + file_name + ".sw";
+        ///// Write the solution
+        full_path = "test_laplace_longi_" + file_name;
         OutputFileHandler output_file_handler(full_path);
-        full_path = file_name+"_laplace_longi_sw.txt";
+        full_path = file_name+"_laplace_longi.txt";
         out_stream p_file = output_file_handler.OpenOutputFile(full_path);
 
-        PRINT_VARIABLE(result_repl.GetSize());
-
-        // Loop over the entries of the solution. //
         for (unsigned i=0; i<result_repl.GetSize(); i++) //result_repl.GetSize()
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
@@ -336,10 +266,66 @@ public:
             double u = result_repl[i];
 
             (*p_file) << x << " " << y << " " << z << " " << u << "\n";
-            //cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
+            cout << i << " " << x << " " << y << " " << z << " " << u << "\n";
         }
 
         TRACE("Completed writing the linear solve values");
+        full_path = file_name+"_laplace_longi_grad.txt";
+        out_stream p_file_grad = output_file_handler.OpenOutputFile(full_path);
+        full_path = file_name+"_laplace_longi_grad_mag.txt";
+        out_stream p_file_grad_mag = output_file_handler.OpenOutputFile(full_path);
+        std::vector<c_vector<double,3u> > fibre_directions;
+        c_vector<double,3u> Node1, Node2, Node3;
+        c_vector<double,3> potVec, gradVec;
+        c_matrix<double,3,2> element_jacobian;
+        c_matrix<double,2,3> inverse_jacobian;
+        double determinant;
+        for(unsigned i = 0; i < mesh.GetNumElements(); i++)
+        {
+            double L1 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(0)];
+            double L2 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(1)];
+            double L3 = result_repl[mesh.GetElement(i)->GetNodeGlobalIndex(2)];
+            mesh.GetElement(i)->CalculateInverseJacobian(element_jacobian,
+                                  determinant,inverse_jacobian);
+
+            potVec[0] = L2-L1;
+            potVec[1] = L3-L1;
+            gradVec = prod(trans(inverse_jacobian), potVec);
+            double magnitude = sqrt(gradVec[0]* gradVec[0] + gradVec[1] * gradVec[1] + gradVec[2] * gradVec[2]);
+            c_vector<double,3u> fibre_direction;
+            if (magnitude < 0.5)
+            {
+                fibre_direction = fibre_directions[i-1];
+                gradVec[0] = fibre_direction[0];
+                gradVec[1] = fibre_direction[1];
+                gradVec[2] = fibre_direction[2];
+            }
+
+            (*p_file_grad) << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
+            (*p_file_grad_mag) << magnitude << "\n";
+
+            fibre_direction[0] = gradVec[0];
+            fibre_direction[1] = gradVec[1];
+            fibre_direction[2] = gradVec[2];
+            fibre_directions.push_back(fibre_direction);
+/*
+            if(i==10000000000)
+            {
+              TRACE("BEGIN\n");
+              cout << "Element ID: " << i << " L1: " << L1 << " L2: " << L2 << " L3: " << L3 << " L4: " << L4 << "\n";
+              cout << "Node 0 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(0) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(0))->rGetLocation()[2]<< "\n";
+              cout << "Node 1 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(1) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(1))->rGetLocation()[2]<< "\n";
+              cout << "Node 2 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(2) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(2))->rGetLocation()[2]<< "\n";
+              cout << "Node 2 (ID, x, y, z): " << mesh.GetElement(i)->GetNodeGlobalIndex(3) << " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[0]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[1]<< " " << mesh.GetNode(mesh.GetElement(i)->GetNodeGlobalIndex(3))->rGetLocation()[2]<< "\n";
+              cout << "GradVec: " << gradVec[0] << " " << gradVec[1] << " " << gradVec[2] << "\n";
+              TRACE("END");
+            }*/
+        }
+        full_path = "test_laplace_longi_" + file_name;
+        VtkMeshWriter<2u, 3u> mesh_writer(full_path, "mesh", false);
+        mesh_writer.AddCellData("Fibre Direction", fibre_directions);
+        mesh_writer.WriteFilesUsingMesh(mesh);
+
         PetscTools::Destroy(result);
     }
 };
